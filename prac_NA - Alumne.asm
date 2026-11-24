@@ -326,100 +326,67 @@ showNumber proc
 	;Inici codi d'alumne de la rutina
 	push_all
 
-	mov ecx, 0
-	;comparar 9999
 	mov eax, [number]
-	cmp eax, 9999
-	jle salt
-	mov eax, 9999
-	;mov [carac], al
-	;call printch
-
-	salt:
-	
 	cmp eax, 0
-	jne continue
-	
-	;si es zero, imprimir 4 espacios para limpiar casellas
-	mov cl, ' '
-	mov [carac], cl
-	call printch
-	call printch
-	call printch
-	call printch
-	jmp fiZero
+	jne noZero
 
-	continue:
-	cmp eax, 9
-	jle unidades_aux
-
-	cmp eax, 99
-	jle decenas_aux
-
-	cmp eax, 999
-	jle centenares_aux
-
-	;mostrar pantalla
-	;milers
-	mov ebx, 1000
-	div ebx
-	add al, '0'
-	mov [carac], al
+	mov [carac], ' '
 	call printch
-
-	mov eax, edx
-	centenares:
-	
-	mov edx, 0
-	mov ebx, 100
-	div ebx
-	add al, '0'
-	mov [carac], al
 	call printch
-	
-	mov eax, edx
-	decenas:
-	
-	mov edx, 0
+	call printch
+	call printch
+	jmp fi
+		
+	noZero:						;Logica invertida, en vez de ir dividiendo entre 10, 100, 1000 hace por ejemplo
+	mov esi, 1 ;Divisor			;1234 / 1000 = 1, a partir del residu fa 234 / 100 = 2 ... fins a arribar al final
+	mov ecx, 1	;n xifres
+
+	bucleDivisor:
+	cmp ecx, 10
+	je fiDivisor
+	mov ebx, esi
+	imul ebx, 10
+	cmp eax, ebx
+	jl fiDivisor
+	mov esi, ebx
+	inc ecx
+	jmp bucleDivisor
+
+	fiDivisor:
+	mov edi, 4
+	sub edi, ecx ;4 - nombre de xifres = espais en blanc
+
+	bucleEspais:		;afegeix edi - eck (4 - nXifres) espais en blanc
+	cmp edi, 0
+	jle iniciImprimir
+	mov [carac], ' '
+	call printch
+	sub edi, 1
+	jmp bucleEspais
+
+	iniciImprimir:
 	mov ebx, 10
-	div ebx
-	add al, '0'
-	mov [carac], al
-	call printch
+	mov eax, [number]
 
-	mov eax, edx
-	unidades:
-	
+	bucleImprimir:
 	mov edx, 0
-	mov ebx, 1
-	div ebx
+	div esi			;eax = quocient . edx = residu
 	add al, '0'
 	mov [carac], al
 	call printch
-	jmp fiZero
+	mov edi, edx
 
-	unidades_aux:
-	mov cl, ' '
-	mov [carac], cl
-	call printch
-	call printch
-	call printch
-	jmp unidades
+	cmp esi, 1 ;Estem a les unitats
+	je fi 
 
-	decenas_aux:
-	mov cl, ' '
-	mov [carac], cl
-	call printch
-	call printch
-	jmp decenas
+	mov eax, esi
+	mov edx, 0
+	div ebx
+	mov esi, eax
+	mov eax, edi
+	jmp bucleImprimir
 
-	centenares_aux:
-	mov cl, ' '
-	mov [carac], cl
-	call printch
-	jmp centenares
-
-	fiZero:
+	fi:
 
 	pop_all
 	;Fi codi d'alumne de la rutina
@@ -669,6 +636,11 @@ addPairs proc
 	add dx, dx
 	mov [m + eax], dx
 	mov [m + ecx], 0
+
+	mov esi, 0			;Inicialitzar esi
+	mov si, dx			;Guardem a si el nou valor colocat
+	add [score], esi	;Sumar el valor que hem colocat a score
+
 	sub eax, 2
 	sub ecx, 2
 	jmp BuclePrincipal
@@ -852,7 +824,65 @@ insertTile endp
 
 
 
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Rutina: gameWin
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; En aquesta subrutina es comprova si s'ha aconseguit un 2048
+; en fer un moviment.
+; Si s'ha assolit un valor 2048, la variable (state) es posa a '3'. 
+;
+; Variables globals utilitzades:   
+; m:			Matriu de 4x4 shorts que conté l'estat del tauler de joc
+; state:		Indica l'estat del joc (1-5). ('3': partida guanyada)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;; 
+gameWin proc
+	push ebp
+	mov  ebp, esp
+	;Inici codi d'alumne de la rutina
 
+
+
+
+
+
+ 	;Fi codi d'alumne de la rutina
+	mov esp, ebp
+	pop ebp
+	ret
+
+gameWin endp
+
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Rutina: gameBlocked
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; En aquesta subrutina es comprova si el tauler està bloquejat i
+; i per tant no es poden fer moviments.
+; Per determinar que el tauler està blocat, cal mirar totes les possibles
+; parelles laterals i verticals, si el tauler és ple i no hi ha cap 
+; parella possible, el joc està bloquejat i la partida perduda.
+;
+; Posarem la variable state a ‘5’ – taulell bloquejat, has perdut
+;
+; Variables globals utilitzades:   
+; m:			Matriu de 4x4 shorts que conté l'estat del tauler de joc
+; state:		Indica l'estat del joc (1-5). ('5': partida bloquejada)
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;  
+gameBlocked proc
+	push ebp
+	mov  ebp, esp
+	;Inici codi d'alumne de la rutina
+
+
+
+
+
+ 	;Fi codi d'alumne de la rutina
+	mov esp, ebp
+	pop ebp
+	ret
+
+gameBlocked endp
 
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
@@ -969,6 +999,58 @@ onePlay proc
 onePlay endp
 
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; Rutina: gameScore
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+; En aquesta rutina mostrarem per pantalla el tanteix actual
+; amb un màxim de 99999 punts.
+; Això implica modificar la rutina addPairs per actualitzar score.
+; També caldrà modificar showNumbers per tal que pugui mostrar
+; nombre de fins a 5 digits.
+; Les coordenades de pantalla de la línea de score on s'ha de imprimer
+; el valor de la puntuació ron rowScreen=18 i colScreen=20
+;
+; Variables  utilitzades:
+; score:		puntúació total del joc
+; number:		Nombre que estem tractant per imprimir a pantalla
+; rowScreen:	Fila on volem posicionar el cursor a la pantalla
+; colScreen:	Columna on volem posicionar el cursor a la pantalla
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
+gameScore proc
+	push ebp
+	mov  ebp, esp
+	;Inici codi d'alumne de la rutina
+	push_all
+
+	mov [rowScreen], 18
+	mov [colScreen], 20
+	call gotoxy
+
+	mov eax, [score] ;Comprova que score no sigui major que 99999
+	cmp eax, 99999		
+	jle scoreCorrecte
+	mov eax, 99999
+
+	scoreCorrecte:
+	mov [number], eax
+
+	mov [carac], ' ' 
+	call printch
+	cmp eax, 9999
+	jg cincXifres		;Si el nombre es inferior a 10000, falta un caracter (showNumber mostrarà 4), pel que afegeix un espai en blanc al principi
+	call printch
+
+	cincXifres:
+	call showNumber
+
+	pop_all
+	;Fi codi d'alumne de la rutina
+	mov esp, ebp
+	pop ebp
+	ret
+
+gameScore endp
+
+;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Rutina: PlayGame
 ;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;;
 ; Joc del 2048
@@ -1010,6 +1092,7 @@ playGame proc
 	cmp ebx, '0'
 	je fiBucle
 	call onePlay
+	call gameScore		;Actualitza puntuacio
 	call printMessage_C
 	jmp bucle
 
